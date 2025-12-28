@@ -69,16 +69,16 @@ export const MainDashboard: FC = () => {
   const clientsQuery = query(collection(firestore, "clients"), orderBy("relationship_score", "desc"));
   const { data: clients } = useFirestoreCollectionData(clientsQuery, { idField: "id" });
 
-  const interactionsQuery = query(collection(firestore, "interactions"), limit(5));
+  const interactionsQuery = query(collection(firestore, "interactions"));
   const { data: interactions } = useFirestoreCollectionData(interactionsQuery, { idField: "id" });
 
   const marketIntelQuery = query(collection(firestore, "market_intel"));
   const { data: marketIntel } = useFirestoreCollectionData(marketIntelQuery, { idField: "id" });
 
-  const dealsQuery = query(collection(firestore, "deals"), limit(5));
+  const dealsQuery = query(collection(firestore, "deals"));
   const { data: deals } = useFirestoreCollectionData(dealsQuery, { idField: "id" });
 
-  const transactionsQuery = query(collection(firestore, "transactions"), limit(5));
+  const transactionsQuery = query(collection(firestore, "transactions"));
   const { data: transactions } = useFirestoreCollectionData(transactionsQuery, { idField: "id" });
 
   const marketRatesQuery = query(collection(firestore, "market_rates"));
