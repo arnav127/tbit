@@ -1,6 +1,35 @@
-import { Firestore, writeBatch, doc, collection } from "firebase/firestore";
+import { Firestore, writeBatch, doc, collection, getDocs } from "firebase/firestore";
 
 export const seedDatabase = async (db: Firestore) => {
+  const collectionsToClear = [
+    "clients",
+    "interactions",
+    "market_intel",
+    "deals",
+    "transactions",
+    "market_rates",
+    "meetings",
+    "sector_exposure",
+  ];
+
+  for (const colName of collectionsToClear) {
+    const snapshot = await getDocs(collection(db, colName));
+    if (snapshot.empty) continue;
+
+    let deleteBatch = writeBatch(db);
+    let count = 0;
+    for (const doc of snapshot.docs) {
+      deleteBatch.delete(doc.ref);
+      count++;
+      if (count >= 400) {
+        await deleteBatch.commit();
+        deleteBatch = writeBatch(db);
+        count = 0;
+      }
+    }
+    if (count > 0) await deleteBatch.commit();
+  }
+
   const batch = writeBatch(db);
 
   const clients = [
@@ -177,6 +206,14 @@ export const seedDatabase = async (db: Firestore) => {
     { client_name: "Massive Dynamic", title: "Risk Management Audit", date: new Date(Date.now() - 86400000 * 5).toISOString(), type: "Past", outcome: "Neutral - Follow up required", notes: "Concerns about FX exposure." },
   ];
 
+  const sectorExposure = [
+    { sector: "Technology", exposure: "35%", performance: "+1.2%", color: "bg-blue-500", order: 1 },
+    { sector: "Healthcare", exposure: "25%", performance: "-0.4%", color: "bg-green-500", order: 2 },
+    { sector: "Financials", exposure: "20%", performance: "+0.8%", color: "bg-amber-500", order: 3 },
+    { sector: "Energy", exposure: "15%", performance: "+2.1%", color: "bg-red-500", order: 4 },
+    { sector: "Consumer", exposure: "5%", performance: "-0.1%", color: "bg-purple-500", order: 5 },
+  ];
+
   clients.forEach((client) => {
     const clientId = client.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
     const clientRef = doc(collection(db, "clients"), clientId);
@@ -221,6 +258,11 @@ export const seedDatabase = async (db: Firestore) => {
   meetings.forEach((meeting, idx) => {
     const ref = doc(collection(db, "meetings"), `meeting-${idx}`);
     batch.set(ref, meeting);
+  });
+
+  sectorExposure.forEach((item, idx) => {
+    const ref = doc(collection(db, "sector_exposure"), `sector-${idx}`);
+    batch.set(ref, item);
   });
 
   await batch.commit();
