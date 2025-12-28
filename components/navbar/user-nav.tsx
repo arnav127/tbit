@@ -30,7 +30,7 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full ring-offset-slate-950 focus:ring-amber-600">
           <Avatar className="h-10 w-10">
             <AvatarImage
               src={data?.photoURL || "/assets/avatar_01.png"}

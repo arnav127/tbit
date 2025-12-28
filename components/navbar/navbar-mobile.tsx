@@ -18,7 +18,7 @@ export const NavbarMobile = () => {
       <NavigationMenu>
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuTrigger className="-mr-4">
+            <NavigationMenuTrigger className="-mr-4 bg-transparent text-slate-300 hover:bg-slate-800 hover:text-white focus:bg-slate-800 focus:text-white">
               <MenuIcon />
             </NavigationMenuTrigger>
             <NavigationMenuContent className="flex flex-col p-1">
