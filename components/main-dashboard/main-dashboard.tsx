@@ -42,7 +42,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import { collection, query, orderBy, limit, addDoc } from "firebase/firestore";
+import { collection, query, orderBy, limit, addDoc, updateDoc, doc } from "firebase/firestore";
 import { seedDatabase } from "@/lib/seed";
 import { toast } from "@/components/ui/use-toast";
 
@@ -54,6 +54,10 @@ export const MainDashboard: FC = () => {
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const pitchbookRef = useRef<HTMLDivElement>(null);
   const [isEngagementOpen, setIsEngagementOpen] = useState(false);
+  const [isAgendaOpen, setIsAgendaOpen] = useState(false);
+  const [selectedMeeting, setSelectedMeeting] = useState<any>(null);
+  const [isEditingAgenda, setIsEditingAgenda] = useState(false);
+  const [agendaNotes, setAgendaNotes] = useState("");
   const [engagementType, setEngagementType] = useState<"interaction" | "meeting">("interaction");
   const [formData, setFormData] = useState({
     clientId: "",
@@ -157,6 +161,21 @@ export const MainDashboard: FC = () => {
       </html>
     `);
     printWindow.document.close();
+  };
+
+    const handleUpdateAgenda = async () => {
+    if (!selectedMeeting) return;
+    try {
+      const meetingRef = doc(firestore, "meetings", selectedMeeting.id);
+      await updateDoc(meetingRef, {
+        notes: agendaNotes
+      });
+      toast({ title: "Agenda Updated", description: "Meeting notes have been saved." });
+      setIsEditingAgenda(false);
+      setSelectedMeeting({ ...selectedMeeting, notes: agendaNotes });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
   };
 
   const handleSubmitEngagement = async () => {
@@ -765,7 +784,17 @@ export const MainDashboard: FC = () => {
                                 <p className="text-sm text-slate-500">{new Date(meeting.date).toLocaleDateString()} • {meeting.attendees?.join(", ")}</p>
                               </div>
                             </div>
-                            <Button size="sm" variant="outline" className="border-amber-200 text-amber-700 hover:bg-amber-100">
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="border-amber-200 text-amber-700 hover:bg-amber-100"
+                              onClick={() => {
+                                setSelectedMeeting(meeting);
+                                setAgendaNotes(meeting.notes || "");
+                                setIsEditingAgenda(false);
+                                setIsAgendaOpen(true);
+                              }}
+                            >
                               View Agenda
                             </Button>
                           </div>
@@ -882,6 +911,65 @@ export const MainDashboard: FC = () => {
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={() => setIsEngagementOpen(false)}>Cancel</Button>
             <Button onClick={handleSubmitEngagement}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Meeting Agenda Modal */}
+      <Dialog open={isAgendaOpen} onOpenChange={setIsAgendaOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Meeting Agenda</DialogTitle>
+            <DialogDescription>
+              {selectedMeeting?.title}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-bold">Client</Label>
+              <div className="col-span-3">{selectedMeeting?.client_name}</div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-bold">Date</Label>
+              <div className="col-span-3">
+                {selectedMeeting?.date && new Date(selectedMeeting.date).toLocaleString()}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right font-bold">Attendees</Label>
+              <div className="col-span-3">
+                {selectedMeeting?.attendees?.join(", ") || "No attendees listed"}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label className="text-right font-bold mt-1">Notes / Agenda</Label>
+              <div className="col-span-3">
+                {isEditingAgenda ? (
+                  <textarea 
+                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={agendaNotes}
+                    onChange={(e) => setAgendaNotes(e.target.value)}
+                  />
+                ) : (
+                  <div className="min-h-[100px] p-3 bg-slate-50 rounded-md border border-slate-100 text-sm">
+                    {selectedMeeting?.notes || "No agenda details available."}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            {isEditingAgenda ? (
+              <>
+                <Button variant="outline" onClick={() => setIsEditingAgenda(false)}>Cancel</Button>
+                <Button onClick={handleUpdateAgenda}>Save Changes</Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={() => setIsEditingAgenda(true)}>Edit Agenda</Button>
+                <Button onClick={() => setIsAgendaOpen(false)}>Close</Button>
+              </>
+            )}
           </div>
         </DialogContent>
       </Dialog>
