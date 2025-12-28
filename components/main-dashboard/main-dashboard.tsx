@@ -103,13 +103,6 @@ export const MainDashboard: FC = () => {
 
   const formatCurrency = (value: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: "compact", maximumFractionDigits: 1 }).format(value);
 
-  const formatDateForInput = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
-
   const handleSeed = async () => {
     setIsSeeding(true);
     try {
@@ -241,23 +234,6 @@ export const MainDashboard: FC = () => {
               {isSeeding ? "Seeding..." : "Seed Data"}
             </Button>
           )}
-          <div className="relative">
-            <Button variant="outline" className="border-slate-300 text-slate-700 w-[180px] justify-start text-left font-normal">
-              <Calendar className="mr-2 h-4 w-4" />
-              {currentDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-            </Button>
-            <input
-              type="date"
-              className="absolute inset-0 opacity-0 cursor-pointer w-full h-full z-10"
-              value={formatDateForInput(currentDate)}
-              onChange={(e) => {
-                if (e.target.value) {
-                  const [y, m, d] = e.target.value.split('-').map(Number);
-                  setCurrentDate(new Date(y, m - 1, d));
-                }
-              }}
-            />
-          </div>
           <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setIsEngagementOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
             Log
