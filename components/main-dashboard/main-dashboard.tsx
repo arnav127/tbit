@@ -91,6 +91,9 @@ export const MainDashboard: FC = () => {
   const meetingsQuery = query(collection(firestore, "meetings"));
   const { data: meetings } = useFirestoreCollectionData(meetingsQuery, { idField: "id" });
 
+  const sectorExposureQuery = query(collection(firestore, "sector_exposure"), orderBy("order", "asc"));
+  const { data: sectorExposure } = useFirestoreCollectionData(sectorExposureQuery, { idField: "id" });
+
   // Date-based modifier for mock data variation
   const dateModifier = (currentDate.getFullYear() + currentDate.getMonth() + currentDate.getDate()) % 10;
   const volatilityFactor = 1 + ((dateModifier - 5) / 100); // +/- 5% variation
@@ -380,13 +383,7 @@ export const MainDashboard: FC = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                {[
-                  { sector: "Technology", exposure: "35%", performance: "+1.2%", color: "bg-blue-500" },
-                  { sector: "Healthcare", exposure: "25%", performance: "-0.4%", color: "bg-green-500" },
-                  { sector: "Financials", exposure: "20%", performance: "+0.8%", color: "bg-amber-500" },
-                  { sector: "Energy", exposure: "15%", performance: "+2.1%", color: "bg-red-500" },
-                  { sector: "Consumer", exposure: "5%", performance: "-0.1%", color: "bg-purple-500" },
-                ].map((item, i) => (
+                {sectorExposure?.map((item: any, i: number) => (
                   <div key={i} className="space-y-1">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-medium text-slate-700">{item.sector}</span>
