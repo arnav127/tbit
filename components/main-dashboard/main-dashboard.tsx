@@ -203,6 +203,8 @@ export const MainDashboard: FC = () => {
     
     const client = clients?.find((c: any) => c.id === formData.clientId);
 
+    if (!client) return;
+
     try {
       if (engagementType === "interaction") {
         await addDoc(collection(firestore, "interactions"), {
