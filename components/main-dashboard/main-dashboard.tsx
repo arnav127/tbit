@@ -46,6 +46,14 @@ import { collection, query, orderBy, limit, addDoc, updateDoc, doc } from "fireb
 import { seedDatabase } from "@/lib/seed";
 import { toast } from "@/components/ui/use-toast";
 
+const sectorColors: Record<string, string> = {
+  "Technology": "bg-blue-500",
+  "Healthcare": "bg-green-500",
+  "Financials": "bg-amber-500",
+  "Energy": "bg-red-500",
+  "Consumer": "bg-purple-500",
+};
+
 export const MainDashboard: FC = () => {
   const firestore = useFirestore();
   const [isSeeding, setIsSeeding] = useState(false);
@@ -477,7 +485,7 @@ export const MainDashboard: FC = () => {
                       </div>
                     </div>
                     <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
-                      <div className={`h-full ${item.color}`} style={{ width: item.exposure }}></div>
+                      <div className={`h-full ${sectorColors[item.sector] || "bg-slate-500"}`} style={{ width: item.exposure }}></div>
                     </div>
                   </div>
                 ))}
