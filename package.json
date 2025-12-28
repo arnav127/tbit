@@ -1,7 +1,7 @@
 {
-  "name": "venefish",
-  "description": "Boilerplate & template for Vercel projects using Next.js, Firebase and shadcn/ui.",
-  "author": "Enesien Software <contact@enesien.com> (https://enesien.com)",
+  "name": "tbit",
+  "description": "TBIT Sample CRM targetted for GS as a personalization strategy.",
+  "author": "Arnav Dixit",
   "version": "0.1.0",
   "private": true,
   "scripts": {
