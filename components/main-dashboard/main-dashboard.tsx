@@ -8,6 +8,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -33,13 +35,14 @@ import {
   Globe,
   Landmark,
   PieChart,
+  Plus,
   Target,
   TrendingUp,
   User,
   Zap,
 } from "lucide-react";
 import { useFirestore, useFirestoreCollectionData } from "reactfire";
-import { collection, query, orderBy, limit } from "firebase/firestore";
+import { collection, query, orderBy, limit, addDoc } from "firebase/firestore";
 import { seedDatabase } from "@/lib/seed";
 import { toast } from "@/components/ui/use-toast";
 
@@ -50,6 +53,17 @@ export const MainDashboard: FC = () => {
   const [isPitchbookOpen, setIsPitchbookOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState<any>(null);
   const pitchbookRef = useRef<HTMLDivElement>(null);
+  const [isEngagementOpen, setIsEngagementOpen] = useState(false);
+  const [engagementType, setEngagementType] = useState<"interaction" | "meeting">("interaction");
+  const [formData, setFormData] = useState({
+    clientId: "",
+    type: "Call",
+    notes: "",
+    date: new Date().toISOString().split('T')[0],
+    sentiment: "Neutral",
+    title: "",
+    attendees: ""
+  });
 
   // Data Fetching
   const clientsQuery = query(collection(firestore, "clients"), orderBy("relationship_score", "desc"));
@@ -145,6 +159,52 @@ export const MainDashboard: FC = () => {
     printWindow.document.close();
   };
 
+  const handleSubmitEngagement = async () => {
+    if (!formData.clientId) {
+      toast({ title: "Missing Client", description: "Please select a client.", variant: "destructive" });
+      return;
+    }
+    
+    const client = clients?.find((c: any) => c.id === formData.clientId);
+    if (!client) return;
+
+    try {
+      if (engagementType === "interaction") {
+        await addDoc(collection(firestore, "interactions"), {
+          client_id: client.id,
+          client_name: client.name,
+          type: formData.type,
+          sentiment: formData.sentiment,
+          notes: formData.notes,
+          date: new Date(formData.date).toISOString()
+        });
+        toast({ title: "Interaction Logged", description: "The interaction has been recorded." });
+      } else {
+        await addDoc(collection(firestore, "meetings"), {
+          client_name: client.name,
+          title: formData.title,
+          date: new Date(formData.date).toISOString(),
+          type: "Upcoming",
+          attendees: formData.attendees.split(",").map(s => s.trim()),
+          notes: formData.notes
+        });
+        toast({ title: "Meeting Scheduled", description: "The meeting has been added to the calendar." });
+      }
+      setIsEngagementOpen(false);
+      setFormData({
+        clientId: "",
+        type: "Call",
+        notes: "",
+        date: new Date().toISOString().split('T')[0],
+        sentiment: "Neutral",
+        title: "",
+        attendees: ""
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   return (
     <div className="flex flex-col space-y-6 pb-8">
       {/* Header */}
@@ -179,6 +239,10 @@ export const MainDashboard: FC = () => {
               }}
             />
           </div>
+          <Button variant="outline" className="border-slate-300 text-slate-700" onClick={() => setIsEngagementOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" />
+            Log
+          </Button>
           <Button 
             className="bg-amber-600 hover:bg-amber-700 text-white border-none"
             onClick={() => {
@@ -719,6 +783,108 @@ export const MainDashboard: FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Engagement Logging Modal */}
+      <Dialog open={isEngagementOpen} onOpenChange={setIsEngagementOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Log Engagement</DialogTitle>
+            <DialogDescription>
+              Record a new interaction or schedule a meeting.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="flex items-center gap-4 mb-2">
+              <Button 
+                variant={engagementType === "interaction" ? "default" : "outline"} 
+                onClick={() => setEngagementType("interaction")}
+                className="w-full"
+              >
+                Interaction
+              </Button>
+              <Button 
+                variant={engagementType === "meeting" ? "default" : "outline"} 
+                onClick={() => setEngagementType("meeting")}
+                className="w-full"
+              >
+                Meeting
+              </Button>
+            </div>
+            
+            <div className="grid gap-2">
+              <Label htmlFor="client">Client</Label>
+              <select 
+                id="client"
+                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                value={formData.clientId}
+                onChange={(e) => setFormData({...formData, clientId: e.target.value})}
+              >
+                <option value="">Select a client...</option>
+                {clients?.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+
+            {engagementType === "interaction" ? (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="type">Type</Label>
+                  <select 
+                    id="type"
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
+                  >
+                    <option>Call</option>
+                    <option>Email</option>
+                    <option>Meeting</option>
+                    <option>Dinner</option>
+                    <option>Golf</option>
+                  </select>
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="sentiment">Sentiment</Label>
+                  <select 
+                    id="sentiment"
+                    className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    value={formData.sentiment}
+                    onChange={(e) => setFormData({...formData, sentiment: e.target.value})}
+                  >
+                    <option>Positive</option>
+                    <option>Neutral</option>
+                    <option>Negative</option>
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="title">Meeting Title</Label>
+                  <Input id="title" value={formData.title} onChange={(e) => setFormData({...formData, title: e.target.value})} placeholder="e.g. Q4 Strategy Review" />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="attendees">Attendees</Label>
+                  <Input id="attendees" value={formData.attendees} onChange={(e) => setFormData({...formData, attendees: e.target.value})} placeholder="e.g. John Doe, Jane Smith" />
+                </div>
+              </>
+            )}
+
+            <div className="grid gap-2">
+              <Label htmlFor="date">Date</Label>
+              <Input id="date" type="date" value={formData.date} onChange={(e) => setFormData({...formData, date: e.target.value})} />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="notes">Notes</Label>
+              <textarea id="notes" className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} placeholder="Enter details..." />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsEngagementOpen(false)}>Cancel</Button>
+            <Button onClick={handleSubmitEngagement}>Save</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
