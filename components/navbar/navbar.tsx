@@ -18,13 +18,13 @@ export const NavBar: FC = () => {
             </span>
           </Link>
           <div className="flex items-center space-x-6 text-sm font-medium text-slate-300">
-            <Link href="#1" className="hover:text-amber-500 transition-colors">
+            <Link href="/markets" className="hover:text-amber-500 transition-colors">
               Markets
             </Link>
-            <Link href="#2" className="hover:text-amber-500 transition-colors">
+            <Link href="/banking" className="hover:text-amber-500 transition-colors">
               Banking
             </Link>
-            <Link href="#3" className="hover:text-amber-500 transition-colors">
+            <Link href="/research" className="hover:text-amber-500 transition-colors">
               Research
             </Link>
           </div>

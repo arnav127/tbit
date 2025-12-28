@@ -23,19 +23,19 @@ export const NavbarMobile = () => {
             </NavigationMenuTrigger>
             <NavigationMenuContent className="flex flex-col p-1">
               <NavigationMenuLink
-                href="#1"
+                href="/markets"
                 className={buttonVariants({ variant: "link" })}
               >
                 Markets
               </NavigationMenuLink>
               <NavigationMenuLink
-                href="#2"
+                href="/banking"
                 className={buttonVariants({ variant: "link" })}
               >
                 Banking
               </NavigationMenuLink>
               <NavigationMenuLink
-                href="#3"
+                href="/research"
                 className={buttonVariants({ variant: "link" })}
               >
                 Research
