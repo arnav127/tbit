@@ -26,19 +26,19 @@ export const NavbarMobile = () => {
                 href="#1"
                 className={buttonVariants({ variant: "link" })}
               >
-                Features
+                Markets
               </NavigationMenuLink>
               <NavigationMenuLink
                 href="#2"
                 className={buttonVariants({ variant: "link" })}
               >
-                About
+                Banking
               </NavigationMenuLink>
               <NavigationMenuLink
                 href="#3"
                 className={buttonVariants({ variant: "link" })}
               >
-                Acknowledgement
+                Research
               </NavigationMenuLink>
               <div className="flex flex-col mb-0.5">
                 <NavbarUserLinks />

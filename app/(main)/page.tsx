@@ -14,30 +14,6 @@ import React from "react";
 export default function Home() {
   return (
     <div className="flex min-h-screen flex-col bg-slate-50">
-      <header className="sticky top-0 z-50 w-full border-b bg-slate-950/95 backdrop-blur supports-[backdrop-filter]:bg-slate-950/60">
-        <div className="container flex h-14 items-center">
-          <div className="mr-4 hidden md:flex">
-            <Link className="mr-6 flex items-center space-x-2" href="/">
-              <span className="hidden font-bold text-slate-100 sm:inline-block">
-                GS Nexus
-              </span>
-            </Link>
-            <nav className="flex items-center space-x-6 text-sm font-medium text-slate-300">
-              <Link href="#" className="hover:text-amber-500 transition-colors">Markets</Link>
-              <Link href="#" className="hover:text-amber-500 transition-colors">Banking</Link>
-              <Link href="#" className="hover:text-amber-500 transition-colors">Research</Link>
-            </nav>
-          </div>
-          <div className="ml-auto flex items-center space-x-4">
-            <Link href="/login">
-              <Button variant="ghost" className="text-slate-300 hover:text-white hover:bg-slate-800">
-                Log in
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
       <main className="flex-1">
         <section className="space-y-6 pb-8 pt-6 md:pb-12 md:pt-10 lg:py-32 bg-slate-950">
           <div className="container flex flex-col items-center gap-4 text-center">
