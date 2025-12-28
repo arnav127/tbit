@@ -143,7 +143,7 @@ export const MainDashboard: FC = () => {
         <body>
           <div class="mb-8 border-b border-slate-200 pb-4">
             <h1 class="text-3xl font-bold text-slate-900">${selectedClient.name}</h1>
-            <p className="text-slate-500">Strategic Discussion Materials • ${currentDate.toLocaleDateString()}</p>
+            <p class="text-slate-500">Strategic Discussion Materials • ${currentDate.toLocaleDateString()}</p>
           </div>
           <div class="space-y-8">
             ${content.innerHTML}
