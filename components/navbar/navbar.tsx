@@ -14,7 +14,7 @@ export const NavBar: FC = () => {
               <span className="text-[10px] font-bold text-slate-950">GS</span>
             </div>
             <span className="hidden font-bold text-slate-100 sm:inline-block">
-              GS Nexus
+              One GS Nexus
             </span>
           </Link>
           <div className="flex items-center space-x-6 text-sm font-medium text-slate-300">
@@ -32,7 +32,7 @@ export const NavBar: FC = () => {
 
         <div className="md:hidden flex items-center mr-auto">
           <Link href="/" className="flex items-center space-x-2">
-            <span className="font-bold text-slate-100">GS Nexus</span>
+            <span className="font-bold text-slate-100">One GS Nexus</span>
           </Link>
         </div>
 
